@@ -32,6 +32,67 @@
   width: 100%;
   overflow-x: hidden;
   transition: background-color 0.3s ease;
+  --cursor-x: 50vw;
+  --cursor-y: 50vh;
+}
+
+.portfolio-container::after {
+  content: '';
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+  pointer-events: none;
+  background:
+    radial-gradient(140px circle at var(--cursor-x) var(--cursor-y), rgba(255, 255, 255, 0.16), transparent 70%),
+    radial-gradient(280px circle at var(--cursor-x) var(--cursor-y), rgba(120, 190, 255, 0.08), transparent 75%);
+  mix-blend-mode: screen;
+  transition: opacity 0.2s ease;
+}
+
+.portfolio-container.aura-disabled::after {
+  opacity: 0;
+}
+
+[data-theme="light"] .portfolio-container::after {
+  background:
+    radial-gradient(140px circle at var(--cursor-x) var(--cursor-y), rgba(0, 0, 0, 0.2), transparent 70%),
+    radial-gradient(280px circle at var(--cursor-x) var(--cursor-y), rgba(0, 0, 0, 0.12), transparent 75%);
+  mix-blend-mode: multiply;
+}
+
+.glass-tilt {
+  --tilt-x: 0deg;
+  --tilt-y: 0deg;
+  --hover-lift: 0px;
+  --glow-x: 50%;
+  --glow-y: 50%;
+  position: relative;
+  transform-style: preserve-3d;
+  will-change: transform;
+  transform: translateY(var(--hover-lift)) perspective(1200px) rotateX(var(--tilt-x)) rotateY(var(--tilt-y));
+  transition: transform 0.16s ease, background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.glass-tilt::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(180px circle at var(--glow-x) var(--glow-y), rgba(255, 255, 255, 0.22), transparent 68%);
+  transition: opacity 0.2s ease;
+}
+
+.glass-tilt:hover::before {
+  opacity: 1;
+}
+
+.portfolio-container.aura-disabled .glass-tilt::before {
+  opacity: 0;
 }
 
 /* Background Image */
@@ -205,6 +266,14 @@
   transform: scale(0.9);
 }
 
+.aura-toggle {
+  margin-left: -0.5rem;
+}
+
+.portfolio-container.aura-disabled .aura-toggle {
+  opacity: 0.75;
+}
+
 /* Main Content */
 .main-content {
   position: relative;
@@ -315,7 +384,6 @@
   backdrop-filter: blur(10px);
   border-radius: 12px;
   padding: 1.5rem;
-  transition: transform 0.3s ease, background 0.3s ease, border-color 0.3s ease;
   border: 1px solid var(--card-border);
   width: 100%;
   max-width: 100%;
@@ -324,7 +392,7 @@
 }
 
 .project-card:hover {
-  transform: translateY(-5px);
+  --hover-lift: -5px;
   background: var(--card-bg-hover);
 }
 
@@ -950,12 +1018,11 @@
   backdrop-filter: blur(10px);
   border-radius: 12px;
   border: 1px solid var(--card-border);
-  transition: all 0.3s ease;
 }
 
 .resume-experience-item:hover {
   background: var(--card-bg-hover);
-  transform: translateY(-2px);
+  --hover-lift: -2px;
 }
 
 .resume-experience-logo {
@@ -1721,6 +1788,19 @@
 
 /* Touch-friendly adjustments for mobile */
 @media (hover: none) and (pointer: coarse) {
+  .portfolio-container::after {
+    opacity: 0;
+  }
+
+  .glass-tilt {
+    transform: none;
+    transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .glass-tilt::before {
+    display: none;
+  }
+
   .header-nav a {
     min-height: 44px;
     display: flex;
@@ -1900,5 +1980,69 @@
 
   .resume-experience-role {
     font-size: 1rem;
+  }
+}
+
+/* Final responsive polish */
+img,
+svg {
+  max-width: 100%;
+  height: auto;
+}
+
+.project-title,
+.project-description,
+.resume-experience-role,
+.resume-experience-description,
+.resume-experience-date,
+.resume-experience-location,
+.github-link-text {
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 900px) {
+  .resume-header-container {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .header {
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .header-nav {
+    width: 100%;
+    margin-left: 0;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    row-gap: 0.5rem;
+  }
+
+  .main-content {
+    padding-inline: 1rem;
+  }
+
+  .project-card,
+  .resume-experience-item,
+  .project-modal {
+    width: 100%;
+  }
+}
+
+@media (max-width: 400px) {
+  .header-left {
+    min-width: 0;
+  }
+
+  .header-nav {
+    gap: 0.5rem;
+  }
+
+  .header-nav a {
+    padding: 0.25rem 0.35rem;
   }
 }

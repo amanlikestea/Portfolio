@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import './App.css'
 import backgroundImage from './assets/Background.jpg'
 import profilePicture from './assets/amanProfile.jpeg'
@@ -7,6 +7,7 @@ import resumePdf from './assets/KumarAman.resume.pdf'
 import chatWithPdfImage from './assets/chatwithpdf.png'
 
 function App() {
+  const containerRef = useRef(null)
   const [theme, setTheme] = useState(() => {
     // Check localStorage first, then default to 'dark'
     const savedTheme = localStorage.getItem('portfolio-theme')
@@ -16,6 +17,10 @@ function App() {
   const [currentView, setCurrentView] = useState('portfolio') // 'portfolio' or 'resume'
   const [selectedProject, setSelectedProject] = useState(null)
   const [copied, setCopied] = useState(false)
+  const [auraEnabled, setAuraEnabled] = useState(() => {
+    const savedAuraState = localStorage.getItem('portfolio-aura-enabled')
+    return savedAuraState === null ? true : savedAuraState === 'true'
+  })
 
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text).then(() => {
@@ -31,6 +36,10 @@ function App() {
   }, [theme])
 
   useEffect(() => {
+    localStorage.setItem('portfolio-aura-enabled', String(auraEnabled))
+  }, [auraEnabled])
+
+  useEffect(() => {
     // Close modal on Escape key
     const handleEscape = (e) => {
       if (e.key === 'Escape' && selectedProject) {
@@ -41,8 +50,91 @@ function App() {
     return () => window.removeEventListener('keydown', handleEscape)
   }, [selectedProject])
 
+  useEffect(() => {
+    const container = containerRef.current
+    if (!container) {
+      return undefined
+    }
+
+    let frameId = null
+    let mouseX = window.innerWidth / 2
+    let mouseY = window.innerHeight / 2
+
+    const applyCursorPosition = () => {
+      container.style.setProperty('--cursor-x', `${mouseX}px`)
+      container.style.setProperty('--cursor-y', `${mouseY}px`)
+      frameId = null
+    }
+
+    const handlePointerMove = (event) => {
+      mouseX = event.clientX
+      mouseY = event.clientY
+      if (!frameId) {
+        frameId = window.requestAnimationFrame(applyCursorPosition)
+      }
+    }
+
+    window.addEventListener('pointermove', handlePointerMove, { passive: true })
+    applyCursorPosition()
+
+    return () => {
+      window.removeEventListener('pointermove', handlePointerMove)
+      if (frameId) {
+        window.cancelAnimationFrame(frameId)
+      }
+    }
+  }, [])
+
+  useEffect(() => {
+    const supportsHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches
+    if (!supportsHover) {
+      return undefined
+    }
+
+    const tiltCards = Array.from(document.querySelectorAll('.glass-tilt'))
+    const listeners = []
+
+    tiltCards.forEach((card) => {
+      const handleMove = (event) => {
+        const rect = card.getBoundingClientRect()
+        const centerX = rect.left + rect.width / 2
+        const centerY = rect.top + rect.height / 2
+        const offsetX = (event.clientX - centerX) / (rect.width / 2)
+        const offsetY = (event.clientY - centerY) / (rect.height / 2)
+        const maxTilt = 3
+
+        card.style.setProperty('--tilt-x', `${(offsetY * -maxTilt).toFixed(2)}deg`)
+        card.style.setProperty('--tilt-y', `${(offsetX * maxTilt).toFixed(2)}deg`)
+        card.style.setProperty('--glow-x', `${event.clientX - rect.left}px`)
+        card.style.setProperty('--glow-y', `${event.clientY - rect.top}px`)
+      }
+
+      const handleLeave = () => {
+        card.style.setProperty('--tilt-x', '0deg')
+        card.style.setProperty('--tilt-y', '0deg')
+      }
+
+      card.addEventListener('pointermove', handleMove)
+      card.addEventListener('pointerleave', handleLeave)
+      listeners.push(
+        [card, 'pointermove', handleMove],
+        [card, 'pointerleave', handleLeave]
+      )
+    })
+
+    return () => {
+      listeners.forEach(([element, eventName, listener]) => {
+        element.removeEventListener(eventName, listener)
+      })
+    }
+  }, [currentView, selectedProject])
+
   const toggleTheme = () => {
     setTheme(prevTheme => prevTheme === 'dark' ? 'light' : 'dark')
+  }
+
+  const toggleAura = () => {
+    setAuraEnabled(prevState => !prevState)
   }
 
   const handleResumeClick = (e) => {
@@ -200,7 +292,10 @@ mode = st.selectbox("Choose mode:", ["Chat with PDFs", "Chat with Website"])`,
   }
 
   return (
-    <div className={`portfolio-container ${theme === 'light' ? 'light-theme' : ''}`}>
+    <div
+      ref={containerRef}
+      className={`portfolio-container ${theme === 'light' ? 'light-theme' : ''} ${auraEnabled ? '' : 'aura-disabled'}`}
+    >
       {/* Background Image */}
       <div 
         className="background-artwork" 
@@ -240,6 +335,27 @@ mode = st.selectbox("Choose mode:", ["Chat with PDFs", "Chat with Website"])`,
             ) : (
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+              </svg>
+            )}
+          </button>
+          <button
+            className="theme-toggle aura-toggle"
+            onClick={toggleAura}
+            aria-label={auraEnabled ? 'Turn off aura light' : 'Turn on aura light'}
+            title={auraEnabled ? 'Turn off aura light' : 'Turn on aura light'}
+          >
+            {auraEnabled ? (
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M9 18h6"></path>
+                <path d="M10 22h4"></path>
+                <path d="M12 2a7 7 0 0 1 4 12.8A5 5 0 0 0 14 19h-4a5 5 0 0 0-2-4.2A7 7 0 0 1 12 2z"></path>
+              </svg>
+            ) : (
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M9 18h6"></path>
+                <path d="M10 22h4"></path>
+                <path d="M12 2a7 7 0 0 1 4 12.8A5 5 0 0 0 14 19h-4a5 5 0 0 0-2-4.2A7 7 0 0 1 12 2z"></path>
+                <line x1="4" y1="4" x2="20" y2="20"></line>
               </svg>
             )}
           </button>
@@ -305,7 +421,7 @@ mode = st.selectbox("Choose mode:", ["Chat with PDFs", "Chat with Website"])`,
                 {projects.map((project) => (
                   <article 
                     key={project.id} 
-                    className="project-card"
+                    className="project-card glass-tilt"
                     onClick={() => setSelectedProject(project)}
                   >
                     <div className="project-thumbnail">
@@ -331,7 +447,7 @@ mode = st.selectbox("Choose mode:", ["Chat with PDFs", "Chat with Website"])`,
                   onClick={() => setSelectedProject(null)}
                 >
                   <div 
-                    className="project-modal"
+                    className="project-modal glass-tilt"
                     onClick={(e) => e.stopPropagation()}
                   >
                     <button 
@@ -532,7 +648,8 @@ mode = st.selectbox("Choose mode:", ["Chat with PDFs", "Chat with Website"])`,
                   <div className="resume-author-info">
                     <h2 className="resume-author-name">Aman Kumar</h2>
                     <p className="resume-author-title">Software Engineer and Developer. AI/ML | WebDev | Data Analytics</p>
-                    <p className="resume-author-description">I vibe while coding.</p>
+                    <p className="resume-author-description">Unity is power but a 100 sheeps can't kill a wolf. <br /> "I am the WOLF"
+                    </p>
                     <div className="resume-social-links">
                       <a 
                         href="https://github.com/CosmicAman" 
@@ -587,7 +704,7 @@ mode = st.selectbox("Choose mode:", ["Chat with PDFs", "Chat with Website"])`,
                 {/* Experience Entries */}
                 <div className="resume-experience-list">
                   {experiences.map((exp) => (
-                    <div key={exp.id} className="resume-experience-item">
+                    <div key={exp.id} className="resume-experience-item glass-tilt">
                       <div className="resume-experience-logo">
                         <div className="resume-logo-container" title={exp.company}>
                           {exp.logoSrc ? (
@@ -628,7 +745,7 @@ mode = st.selectbox("Choose mode:", ["Chat with PDFs", "Chat with Website"])`,
 
                 <div className="resume-experience-list">
                   {certifications.map((cert) => (
-                    <div key={cert.id} className="resume-experience-item">
+                    <div key={cert.id} className="resume-experience-item glass-tilt">
                       <div className="resume-experience-logo">
                         <div className="resume-logo-container">
                           {cert.id === 1 ? (
