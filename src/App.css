@@ -95,6 +95,183 @@
   opacity: 0;
 }
 
+/* ========== Entrance & text animations (GPU-friendly, reduced-motion aware) ========== */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes textReveal {
+  from {
+    opacity: 0;
+    letter-spacing: 0.08em;
+  }
+  to {
+    opacity: 1;
+    letter-spacing: normal;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Header */
+  .header {
+    animation: fadeIn 0.5s ease both;
+  }
+
+  .header-left {
+    animation: fadeIn 0.5s ease 0.05s both;
+  }
+
+  .header-nav a {
+    animation: fadeIn 0.5s ease both;
+  }
+
+  .header-nav a:nth-child(1) { animation-delay: 0.1s; }
+  .header-nav a:nth-child(2) { animation-delay: 0.18s; }
+  .theme-toggle { animation: fadeIn 0.5s ease 0.25s both; }
+  .aura-toggle { animation: fadeIn 0.5s ease 0.3s both; }
+
+  /* Profile section – staggered */
+  .profile-section > .profile-picture-container {
+    animation: scaleIn 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .profile-section > .profile-name {
+    animation: textReveal 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.12s both;
+  }
+
+  .profile-section > .profile-roles {
+    animation: fadeInUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.22s both;
+  }
+
+  .profile-section > .social-links {
+    animation: fadeInUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.32s both;
+  }
+
+  .profile-section > .social-links .social-link {
+    animation: fadeIn 0.4s ease both;
+  }
+
+  .profile-section > .social-links .social-link:nth-child(1) { animation-delay: 0.42s; }
+  .profile-section > .social-links .social-link:nth-child(2) { animation-delay: 0.5s; }
+  .profile-section > .social-links .social-link:nth-child(3) { animation-delay: 0.58s; }
+
+  /* Recent section */
+  .recent-heading {
+    animation: fadeInUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.15s both;
+  }
+
+  .projects-grid .project-card {
+    animation: fadeInUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .projects-grid .project-card:nth-child(1) { animation-delay: 0.2s; }
+  .projects-grid .project-card:nth-child(2) { animation-delay: 0.32s; }
+  .projects-grid .project-card:nth-child(3) { animation-delay: 0.44s; }
+  .projects-grid .project-card:nth-child(4) { animation-delay: 0.56s; }
+  .projects-grid .project-card:nth-child(5) { animation-delay: 0.68s; }
+
+  /* Resume page */
+  .resume-page .resume-header-container {
+    animation: fadeInUp 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .resume-page .resume-author-section {
+    animation: fadeInUp 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.12s both;
+  }
+
+  .resume-page .resume-experience-section {
+    animation: fadeInUp 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.2s both;
+  }
+
+  .resume-page .resume-experience-section + .resume-experience-section {
+    animation-delay: 0.28s;
+  }
+
+  /* Modal overlay/contents – keep existing fade/slide, ensure smooth */
+  .project-modal-overlay {
+    animation: fadeIn 0.25s ease both;
+  }
+
+  .project-modal {
+    animation: slideUp 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .header,
+  .header-left,
+  .header-nav a,
+  .theme-toggle,
+  .aura-toggle,
+  .profile-section > *,
+  .profile-section > .social-links .social-link,
+  .recent-heading,
+  .projects-grid .project-card,
+  .resume-page .resume-header-container,
+  .resume-page .resume-author-section,
+  .resume-page .resume-experience-section,
+  .project-modal-overlay,
+  .project-modal {
+    animation: none !important;
+  }
+}
+
+/* Shorter durations on small screens for snappier feel */
+@media (prefers-reduced-motion: no-preference) and (max-width: 768px) {
+  .profile-section > .profile-name {
+    animation-duration: 0.5s;
+    animation-delay: 0.08s;
+  }
+
+  .profile-section > .profile-roles {
+    animation-duration: 0.45s;
+    animation-delay: 0.15s;
+  }
+
+  .profile-section > .social-links {
+    animation-duration: 0.45s;
+    animation-delay: 0.22s;
+  }
+
+  .profile-section > .social-links .social-link:nth-child(1) { animation-delay: 0.28s; }
+  .profile-section > .social-links .social-link:nth-child(2) { animation-delay: 0.32s; }
+  .profile-section > .social-links .social-link:nth-child(3) { animation-delay: 0.36s; }
+
+  .recent-heading {
+    animation-duration: 0.45s;
+    animation-delay: 0.1s;
+  }
+
+  .projects-grid .project-card:nth-child(1) { animation-delay: 0.12s; }
+  .projects-grid .project-card:nth-child(2) { animation-delay: 0.2s; }
+  .projects-grid .project-card:nth-child(3) { animation-delay: 0.28s; }
+  .projects-grid .project-card:nth-child(4) { animation-delay: 0.36s; }
+  .projects-grid .project-card:nth-child(5) { animation-delay: 0.44s; }
+}
+
 /* Background Image */
 .background-artwork {
   position: fixed;
@@ -1788,9 +1965,7 @@
 
 /* Touch-friendly adjustments for mobile */
 @media (hover: none) and (pointer: coarse) {
-  .portfolio-container::after {
-    opacity: 0;
-  }
+  /* Aura/torch remains visible on mobile; position follows touch via pointermove */
 
   .glass-tilt {
     transform: none;
