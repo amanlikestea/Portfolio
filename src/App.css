@@ -31,9 +31,13 @@
   min-height: 100vh;
   width: 100%;
   overflow-x: hidden;
-  transition: background-color 0.3s ease;
+  transition: background-color 0.45s ease;
   --cursor-x: 50vw;
   --cursor-y: 50vh;
+}
+
+.theme-smooth * {
+  transition: color 0.45s ease, background-color 0.45s ease, border-color 0.45s ease;
 }
 
 .portfolio-container::after {
@@ -289,12 +293,17 @@
 
 /* Dark theme: higher opacity for more visible background */
 [data-theme="dark"] .background-artwork {
-  opacity: 0.55;
+  opacity: 1.0;
 }
 
 /* Light theme: higher opacity so image is more visible through lighter overlay */
 [data-theme="light"] .background-artwork {
   opacity: 0.9;
+}
+
+/* On resume view, keep the same look as main page, just nudge framing */
+.resume-view .background-artwork {
+  background-position: center 80%;
 }
 
 /* Dark Overlay */
@@ -1192,7 +1201,8 @@
   align-items: center;
   padding: 1.25rem;
   background: var(--card-bg);
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
   border-radius: 12px;
   border: 1px solid var(--card-border);
 }

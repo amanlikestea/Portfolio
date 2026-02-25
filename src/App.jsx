@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import './App.css'
 import backgroundImage from './assets/Background.jpg'
+import resumeBackgroundImage from './assets/resumeBackgroud.jpg'
 import profilePicture from './assets/amanProfile.jpeg'
 import cognizantLogo from './assets/Cognizant.jpeg'
 import resumePdf from './assets/KumarAman.resume.pdf'
@@ -294,12 +295,12 @@ mode = st.selectbox("Choose mode:", ["Chat with PDFs", "Chat with Website"])`,
   return (
     <div
       ref={containerRef}
-      className={`portfolio-container ${theme === 'light' ? 'light-theme' : ''} ${auraEnabled ? '' : 'aura-disabled'}`}
+      className={`portfolio-container theme-smooth ${theme === 'light' ? 'light-theme' : ''} ${auraEnabled ? '' : 'aura-disabled'} ${currentView === 'resume' ? 'resume-view' : ''}`}
     >
       {/* Background Image */}
       <div 
         className="background-artwork" 
-        style={{ backgroundImage: `url(${backgroundImage})` }}
+        style={{ backgroundImage: `url(${currentView === 'resume' ? resumeBackgroundImage : backgroundImage})` }}
       ></div>
       
       {/* Dark Overlay */}
